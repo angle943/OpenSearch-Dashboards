@@ -27,7 +27,6 @@ export interface TableRowProps {
   onRemoveColumn?: (column: string) => void;
   onAddColumn?: (column: string) => void;
   onFilter?: DocViewFilterFn;
-  onClose?: () => void;
   isShortDots: boolean;
 }
 
@@ -38,7 +37,6 @@ const TableRowUI = ({
   onRemoveColumn,
   onAddColumn,
   onFilter,
-  onClose,
   isShortDots,
 }: TableRowProps) => {
   const flattened = indexPattern.flattenHit(row);
@@ -175,15 +173,12 @@ const TableRowUI = ({
               indexPattern={indexPattern}
               onRemoveColumn={(columnName: string) => {
                 onRemoveColumn?.(columnName);
-                onClose?.();
               }}
               onAddColumn={(columnName: string) => {
                 onAddColumn?.(columnName);
-                onClose?.();
               }}
               filter={(mapping, value, mode) => {
                 onFilter?.(mapping, value, mode);
-                onClose?.();
               }}
             />
           </EuiFlexItem>

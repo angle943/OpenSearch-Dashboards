@@ -33,7 +33,6 @@ export interface DefaultDiscoverTableProps {
   onMoveColumn: (colName: string, destination: number) => void;
   onAddColumn: (column: string) => void;
   onFilter: DocViewFilterFn;
-  onClose?: () => void;
   showPagination?: boolean;
   scrollToTop?: () => void;
 }
@@ -55,7 +54,6 @@ const DefaultDiscoverTableUI = ({
   onMoveColumn,
   onAddColumn,
   onFilter,
-  onClose,
   showPagination,
   scrollToTop,
 }: DefaultDiscoverTableProps) => {
@@ -265,7 +263,6 @@ const DefaultDiscoverTableUI = ({
                     onRemoveColumn={onRemoveColumn}
                     onAddColumn={onAddColumn}
                     onFilter={onFilter}
-                    onClose={onClose}
                     isShortDots={isShortDots}
                   />
                 );

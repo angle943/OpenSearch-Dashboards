@@ -108,7 +108,6 @@ export default function DiscoverCanvas({ setHeaderActionMenu, history, optionalR
         core.application.navigateToApp('discover', { path: `#/view/${savedSearch?.id}` });
       }}
       rows={rows}
-      isEnhancementsEnabled={isEnhancementsEnabled}
       indexPattern={indexPattern}
     />
   );
