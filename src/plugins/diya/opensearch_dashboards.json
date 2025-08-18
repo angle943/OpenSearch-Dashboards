@@ -1,0 +1,12 @@
+{
+  "id": "diya",
+  "version": "opensearchDashboards",
+  "requiredPlugins": [
+    "navigation",
+    "opensearchDashboardsReact"
+  ],
+  "optionalPlugins": [],
+  "server": false,
+  "ui": true,
+  "requiredBundles": []
+}
