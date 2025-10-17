@@ -176,7 +176,7 @@ export class VegaBaseView {
         } else {
           throw new Error(
             i18n.translate('visTypeVega.vegaParser.baseView.unableToFindDefaultIndexErrorMessage', {
-              defaultMessage: 'Unable to find default index',
+              defaultMessage: 'U˚nable to find default index',
             })
           );
         }

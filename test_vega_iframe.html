@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vega Iframe Test</title>
+</head>
+<body>
+    <h2>Direct Vega Test</h2>
+    <div id="direct-view" style="border: 1px solid black; padding: 10px; margin: 10px;"></div>
+
+    <h2>Iframe Vega Test</h2>
+    <iframe
+        title="test-iframe"
+        width="500"
+        height="300"
+        style="border: 1px solid red;"
+        src="data:text/html;charset=utf-8,<html>
+<head>
+  <script src='https://cdn.jsdelivr.net/npm/vega@6'></script>
+  <script src='https://cdn.jsdelivr.net/npm/vega-lite@6'></script>
+  <script src='https://cdn.jsdelivr.net/npm/vega-embed@7'></script>
+</head>
+<body>
+<div id='view'></div>
+<script>
+  console.log('Iframe loaded, vega available:', typeof vega);
+  console.log('vegaEmbed available:', typeof vegaEmbed);
+
+  vegaEmbed(
+    '#view',
+    'https://vega.github.io/vega/examples/bar-chart.vg.json'
+  ).then(result => {
+    console.log('Vega chart rendered successfully');
+  }).catch(error => {
+    console.error('Vega chart failed:', error);
+    document.getElementById('view').innerHTML = '<p style=color:red>Error: ' + error.message + '</p>';
+  });
+</script>
+</body>
+</html>">
+    </iframe>
+
+    <!-- Direct embedding for comparison -->
+    <script src="https://cdn.jsdelivr.net/npm/vega@6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@7"></script>
+    <script>
+        // Test direct embedding
+        vegaEmbed('#direct-view', 'https://vega.github.io/vega/examples/bar-chart.vg.json')
+            .then(result => console.log('Direct vega chart rendered'))
+            .catch(error => {
+                console.error('Direct vega failed:', error);
+                document.getElementById('direct-view').innerHTML = '<p style="color: red;">Direct Error: ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

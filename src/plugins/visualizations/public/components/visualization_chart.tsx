@@ -36,7 +36,7 @@ import { VisualizationController } from '../types';
 import { ResizeChecker } from '../../../opensearch_dashboards_utils/public';
 import { ExprVis } from '../expressions/vis';
 
-interface VisualizationChartProps {
+export interface VisualizationChartProps {
   onInit?: () => void;
   uiState: PersistedState;
   vis: ExprVis;
@@ -86,6 +86,7 @@ class VisualizationChart extends React.Component<VisualizationChartProps> {
   }
 
   public render() {
+    console.log('THIS PROPS', this.props);
     return (
       <div className="visChart__container osd-resetFocusState" tabIndex={0} ref={this.containerDiv}>
         <div className="visChart" ref={this.chartDiv} />

@@ -35,6 +35,7 @@ import { memoizeLast } from '../legacy/memoize';
 import { VisualizationChart } from './visualization_chart';
 import { VisualizationNoResults } from './visualization_noresults';
 import { ExprVis } from '../expressions/vis';
+import { VisualizationChartIframe } from './visualization_chart_iframe';
 
 function shouldShowNoResultsMessage(vis: ExprVis, visData: any): boolean {
   const requiresSearch = get(vis, 'type.requiresSearch');
@@ -67,6 +68,8 @@ export class Visualization extends React.Component<VisualizationProps> {
     const { vis, visData, visParams, onInit, uiState, listenOnChange } = this.props;
 
     const noResults = this.showNoResultsMessage(vis, visData);
+
+    console.log('THIS IS RENDERED');
 
     return (
       <div className="visualization">
