@@ -62,6 +62,7 @@ import { CustomizePanelModal } from './panel_header/panel_actions/customize_titl
 import { EmbeddableStart } from '../../plugin';
 import { EmbeddableErrorLabel } from './embeddable_error_label';
 import { EmbeddableStateTransfer, ErrorEmbeddable } from '..';
+import { VizIframe } from './viz_iframe';
 
 const sortByOrderField = (
   { order: orderA }: { order?: number },
@@ -101,6 +102,7 @@ interface State {
   loading?: boolean;
   error?: EmbeddableError;
   errorEmbeddable?: ErrorEmbeddable;
+  vegaParser?: any; // VegaParser instance with populated data
 }
 
 export class EmbeddablePanel extends React.Component<Props, State> {
@@ -205,6 +207,56 @@ export class EmbeddablePanel extends React.Component<Props, State> {
     }
   }
 
+  private async processVegaVisualization() {
+    const embeddable = this.props.embeddable as any;
+    const embeddableOutput = embeddable.getOutput();
+
+    if (embeddableOutput?.visTypeName === 'vega' && embeddable.vis?.params?.spec) {
+      try {
+        // Use the embeddable's existing expression context and data
+        const visData = embeddable.vis;
+        const expressionParams = embeddable.getInput();
+
+        // Get the actual query, filters, and time range from the embeddable context
+        const requestHandlerParams = {
+          query: expressionParams.query || { query: '', language: 'kuery' },
+          filters: expressionParams.filters || [],
+          timeRange: expressionParams.timeRange || { from: 'now-15m', to: 'now' },
+          visParams: { spec: visData.params.spec },
+        };
+
+        // Use the embeddable's existing vega request handler if available
+        const vegaRequestHandler = embeddable.vis?.type?.requestHandler;
+
+        if (vegaRequestHandler) {
+          // Use the actual request handler to process the visualization
+          const vegaParser = await vegaRequestHandler(requestHandlerParams);
+
+          if (this.mounted) {
+            this.setState({ vegaParser });
+          }
+        } else {
+          // Fallback: create a simplified processed spec from the vis data
+          const processedSpec = visData.params.spec;
+          const vegaParser = {
+            spec: typeof processedSpec === 'string' ? JSON.parse(processedSpec) : processedSpec,
+            isVegaLite: processedSpec.$schema?.includes('vega-lite') || false,
+            error: null,
+          };
+
+          if (this.mounted) {
+            this.setState({ vegaParser });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to process Vega visualization:', error);
+        if (this.mounted) {
+          this.setState({ error: error.message });
+        }
+      }
+    }
+  }
+
   public componentWillUnmount() {
     this.mounted = false;
     this.subscription.unsubscribe();
@@ -240,6 +292,9 @@ export class EmbeddablePanel extends React.Component<Props, State> {
 
     const title = this.props.embeddable.getTitle();
     const headerId = this.generateId();
+
+    const embeddableOutput = this.props.embeddable.getOutput();
+
     return (
       <EuiPanel
         className={classes}
@@ -266,13 +321,34 @@ export class EmbeddablePanel extends React.Component<Props, State> {
           />
         )}
         <EmbeddableErrorLabel error={this.state.error} />
-        <div className="embPanel__content" ref={this.embeddableRoot} {...contentAttrs} />
+        {(embeddableOutput as any)?.visTypeName === 'vega' && this.state.vegaParser ? (
+          <VizIframe vegaParser={this.state.vegaParser} width={500} height={400} />
+        ) : (embeddableOutput as any)?.visTypeName === 'vega' ? (
+          <div className="embPanel__content" {...contentAttrs}>
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+              Processing Vega visualization...
+            </div>
+          </div>
+        ) : (
+          <div className="embPanel__content" ref={this.embeddableRoot} {...contentAttrs} />
+        )}
       </EuiPanel>
     );
   }
 
   public componentDidMount() {
-    if (this.embeddableRoot.current) {
+    const embeddableOutput = this.props.embeddable.getOutput();
+
+    // Process Vega visualizations through the iframe approach
+    if ((embeddableOutput as any)?.visTypeName === 'vega') {
+      this.processVegaVisualization().catch((error) => {
+        console.error('Error processing Vega visualization:', error);
+        if (this.mounted) {
+          this.setState({ error: error.message });
+        }
+      });
+    } else if (this.embeddableRoot.current) {
+      // Handle non-Vega visualizations normally
       this.subscription.add(
         this.props.embeddable.getOutput$().subscribe(
           (output: EmbeddableOutput) => {
